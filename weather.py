@@ -404,6 +404,165 @@ async def get_singapore_wind_speed(date: str | None = None) -> str:
     return "\n".join(output_lines)
 
 
+@mcp.tool()
+async def get_singapore_2hr_forecast(date: str | None = None) -> str:
+    """Get the 2-hour weather forecast for Singapore.
+
+    Args:
+        date: The date to fetch data for, in YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss format.
+    """
+    url = "https://api-open.data.gov.sg/v2/real-time/api/two-hr-forecast"
+    headers = {"User-Agent": USER_AGENT}
+    params = {}
+    if date:
+        params["date"] = date
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(url, headers=headers, params=params, timeout=30.0)
+            response.raise_for_status()
+            data = response.json()
+        except httpx.RequestError as e:
+            return f"Error fetching Singapore 2-hour forecast: {e}"
+        except Exception:
+            return "An unexpected error occurred while fetching Singapore 2-hour forecast."
+
+    if not data or "data" not in data or not data["data"].get("items"):
+        return "Unable to parse 2-hour forecast data or no data found."
+
+    api_data = data["data"]
+    latest_item = api_data["items"][0]
+    valid_period = latest_item.get("valid_period", {})
+    start_time = valid_period.get("start", "N/A")
+    end_time = valid_period.get("end", "N/A")
+
+    forecasts = latest_item.get("forecasts", [])
+    if not forecasts:
+        return "No 2-hour forecast data available."
+
+    output_lines = [f"2-hour weather forecast for Singapore (valid from {start_time} to {end_time}):"]
+    
+    forecast_by_type = {}
+    for forecast in forecasts:
+        forecast_type = forecast.get("forecast")
+        area = forecast.get("area")
+        if forecast_type and area:
+            if forecast_type not in forecast_by_type:
+                forecast_by_type[forecast_type] = []
+            forecast_by_type[forecast_type].append(area)
+
+    for forecast_type, areas in forecast_by_type.items():
+        output_lines.append(f"- {forecast_type}: {', '.join(areas)}")
+
+    return "\n".join(output_lines)
+
+
+@mcp.tool()
+async def get_singapore_24hr_forecast(date: str | None = None) -> str:
+    """Get the 24-hour weather forecast for Singapore.
+
+    Args:
+        date: The date to fetch data for, in YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss format.
+    """
+    url = "https://api-open.data.gov.sg/v2/real-time/api/twenty-four-hr-forecast"
+    headers = {"User-Agent": USER_AGENT}
+    params = {}
+    if date:
+        params["date"] = date
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(url, headers=headers, params=params, timeout=30.0)
+            response.raise_for_status()
+            data = response.json()
+        except httpx.RequestError as e:
+            return f"Error fetching Singapore 24-hour forecast: {e}"
+        except Exception:
+            return "An unexpected error occurred while fetching Singapore 24-hour forecast."
+
+    if not data or "data" not in data or not data["data"].get("records"):
+        return "Unable to parse 24-hour forecast data or no data found."
+
+    record = data["data"]["records"][0]
+    general_info = record.get("general", {})
+    
+    output_lines = ["24-Hour Weather Forecast for Singapore:"]
+    
+    # General Forecast
+    output_lines.append("\n**General Outlook:**")
+    gen_forecast = general_info.get("forecast", {}).get("text", "N/A")
+    temp = general_info.get("temperature", {})
+    humidity = general_info.get("relativeHumidity", {})
+    wind = general_info.get("wind", {})
+    
+    output_lines.append(f"- Forecast: {gen_forecast}")
+    output_lines.append(f"- Temperature: {temp.get('low')}°C - {temp.get('high')}°C")
+    output_lines.append(f"- Relative Humidity: {humidity.get('low')}% - {humidity.get('high')}%")
+    output_lines.append(f"- Wind: {wind.get('speed', {}).get('low')}-{wind.get('speed', {}).get('high')} km/h, Direction: {wind.get('direction')}")
+
+    # Periods
+    output_lines.append("\n**Forecast by Period:**")
+    periods = record.get("periods", [])
+    for period in periods:
+        time_period = period.get("timePeriod", {})
+        start = time_period.get('start')
+        end = time_period.get('end')
+        output_lines.append(f"\n* Period: {start} to {end}")
+        regions = period.get("regions", {})
+        for region, forecast in regions.items():
+            output_lines.append(f"  - {region.title()}: {forecast.get('text')}")
+
+    return "\n".join(output_lines)
+
+
+@mcp.tool()
+async def get_singapore_4day_forecast(date: str | None = None) -> str:
+    """Get the 4-day weather forecast for Singapore.
+
+    Args:
+        date: The date to fetch data for, in YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss format.
+    """
+    url = "https://api-open.data.gov.sg/v2/real-time/api/four-day-outlook"
+    headers = {"User-Agent": USER_AGENT}
+    params = {}
+    if date:
+        params["date"] = date
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(url, headers=headers, params=params, timeout=30.0)
+            response.raise_for_status()
+            data = response.json()
+        except httpx.RequestError as e:
+            return f"Error fetching Singapore 4-day forecast: {e}"
+        except Exception:
+            return "An unexpected error occurred while fetching Singapore 4-day forecast."
+
+    if not data or "data" not in data or not data["data"].get("records"):
+        return "Unable to parse 4-day forecast data or no data found."
+
+    forecasts = data["data"]["records"][0].get("forecasts", [])
+    if not forecasts:
+        return "No 4-day forecast data available."
+
+    output_lines = ["4-Day Weather Outlook for Singapore:"]
+    for day_forecast in forecasts:
+        day = day_forecast.get("day", "N/A")
+        date_str = day_forecast.get("timestamp", "N/A").split("T")[0]
+        forecast = day_forecast.get("forecast", {}).get("summary", "N/A")
+        temp = day_forecast.get("temperature", {})
+        humidity = day_forecast.get("relativeHumidity", {})
+        wind = day_forecast.get("wind", {})
+
+        output_lines.append(f"\n**{day} ({date_str}):**")
+        output_lines.append(f"- Forecast: {forecast}")
+        output_lines.append(f"- Temperature: {temp.get('low')}°C - {temp.get('high')}°C")
+        output_lines.append(f"- Relative Humidity: {humidity.get('low')}% - {humidity.get('high')}%")
+        output_lines.append(f"- Wind: {wind.get('speed', {}).get('low')}-{wind.get('speed', {}).get('high')} km/h, Direction: {wind.get('direction')}")
+
+    return "\n".join(output_lines)
+
+
 def main():
     # Initialize and run the server
     mcp.run(transport="stdio")
