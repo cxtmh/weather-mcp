@@ -1,4 +1,5 @@
 from typing import Any
+from datetime import datetime, timedelta
 
 import httpx
 from mcp.server.fastmcp import FastMCP
@@ -88,6 +89,76 @@ Forecast: {period["detailedForecast"]}
         forecasts.append(forecast)
 
     return "\n---\n".join(forecasts)
+
+
+@mcp.tool()
+async def get_singapore_air_temperature(date: str | None = None) -> str:
+    """Get air temperature readings from various weather stations across Singapore.
+    If no date is provided, this will fetch the latest readings.
+
+    Args:
+        date: The date to fetch data for, in YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss format.
+              Can also accept relative dates like 'today', 'yesterday', or 'last week'.
+    """
+    url = "https://api-open.data.gov.sg/v2/real-time/api/air-temperature"
+    headers = {"User-Agent": USER_AGENT}
+    params = {}
+    if date:
+        api_date = date
+        if date.lower() == 'last week':
+            api_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+        elif date.lower() == 'yesterday':
+            api_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        elif date.lower() == 'today':
+            api_date = datetime.now().strftime('%Y-%m-%d')
+        params["date"] = api_date
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(url, headers=headers, params=params, timeout=30.0)
+            response.raise_for_status()
+            data = response.json()
+        except httpx.RequestError as e:
+            return f"Error fetching Singapore weather data: {e}"
+        except Exception:
+            return "An unexpected error occurred while fetching Singapore weather data."
+
+    if not data or "data" not in data:
+        return "Unable to parse temperature data or no data found."
+
+    api_data = data["data"]
+    stations = {s["id"]: s["name"] for s in api_data.get("stations", [])}
+    readings = api_data.get("readings", [])
+
+    if not readings or not stations:
+        return "No temperature readings available from the API."
+
+    # The first item in 'readings' contains the latest data
+    latest_reading_set = readings[0]
+    latest_readings_data = latest_reading_set.get("data", [])
+
+    if not latest_readings_data:
+        return "No temperature measurement values found."
+
+    timestamp = latest_reading_set.get("timestamp", "latest available time")
+    reading_unit = api_data.get("readingUnit", "°C")
+
+    if date:
+        output_lines = [f"Air temperature readings for {date} (as of {timestamp}):"]
+    else:
+        output_lines = [f"Latest air temperature readings from Singapore (as of {timestamp}):"]
+
+    for reading in latest_readings_data:
+        station_id = reading.get("stationId")
+        temperature = reading.get("value")
+        if station_id and temperature is not None:
+            station_name = stations.get(station_id, f"Unknown Station ({station_id})")
+            output_lines.append(f"- {station_name}: {temperature} {reading_unit}")
+
+    if len(output_lines) == 1:
+        return "Could not format any temperature readings."
+
+    return "\n".join(output_lines)
 
 def main():
     # Initialize and run the server
