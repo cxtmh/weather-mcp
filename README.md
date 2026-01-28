@@ -29,7 +29,7 @@ A Model Context Protocol (MCP) server that provides weather data using the Natio
 This server runs over standard input/output (stdio). You can run it directly with Python:
 
 ```bash
-python weather.py
+uv run weather.py
 ```
 
 ### Using with Claude Desktop

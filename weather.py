@@ -98,20 +98,12 @@ async def get_singapore_air_temperature(date: str | None = None) -> str:
 
     Args:
         date: The date to fetch data for, in YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss format.
-              Can also accept relative dates like 'today', 'yesterday', or 'last week'.
     """
     url = "https://api-open.data.gov.sg/v2/real-time/api/air-temperature"
     headers = {"User-Agent": USER_AGENT}
     params = {}
     if date:
-        api_date = date
-        if date.lower() == 'last week':
-            api_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-        elif date.lower() == 'yesterday':
-            api_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-        elif date.lower() == 'today':
-            api_date = datetime.now().strftime('%Y-%m-%d')
-        params["date"] = api_date
+        params["date"] = date
 
     async with httpx.AsyncClient() as client:
         try:
@@ -168,20 +160,12 @@ async def get_singapore_rainfall(date: str | None = None) -> str:
 
     Args:
         date: The date to fetch data for, in YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss format.
-              Can also accept relative dates like 'today', 'yesterday', or 'last week'.
     """
     url = "https://api-open.data.gov.sg/v2/real-time/api/rainfall"
     headers = {"User-Agent": USER_AGENT}
     params = {}
     if date:
-        api_date = date
-        if date.lower() == 'last week':
-            api_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-        elif date.lower() == 'yesterday':
-            api_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-        elif date.lower() == 'today':
-            api_date = datetime.now().strftime('%Y-%m-%d')
-        params["date"] = api_date
+        params["date"] = date
 
     async with httpx.AsyncClient() as client:
         try:
@@ -237,20 +221,12 @@ async def get_singapore_relative_humidity(date: str | None = None) -> str:
 
     Args:
         date: The date to fetch data for, in YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss format.
-              Can also accept relative dates like 'today', 'yesterday', or 'last week'.
     """
     url = "https://api-open.data.gov.sg/v2/real-time/api/relative-humidity"
     headers = {"User-Agent": USER_AGENT}
     params = {}
     if date:
-        api_date = date
-        if date.lower() == 'last week':
-            api_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-        elif date.lower() == 'yesterday':
-            api_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-        elif date.lower() == 'today':
-            api_date = datetime.now().strftime('%Y-%m-%d')
-        params["date"] = api_date
+        params["date"] = date
 
     async with httpx.AsyncClient() as client:
         try:
@@ -313,20 +289,12 @@ async def get_singapore_wind_direction(date: str | None = None) -> str:
 
     Args:
         date: The date to fetch data for, in YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss format.
-              Can also accept relative dates like 'today', 'yesterday', or 'last week'.
     """
     url = "https://api-open.data.gov.sg/v2/real-time/api/wind-direction"
     headers = {"User-Agent": USER_AGENT}
     params = {}
     if date:
-        api_date = date
-        if date.lower() == 'last week':
-            api_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-        elif date.lower() == 'yesterday':
-            api_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-        elif date.lower() == 'today':
-            api_date = datetime.now().strftime('%Y-%m-%d')
-        params["date"] = api_date
+        params["date"] = date
 
     async with httpx.AsyncClient() as client:
         try:
@@ -382,20 +350,12 @@ async def get_singapore_wind_speed(date: str | None = None) -> str:
 
     Args:
         date: The date to fetch data for, in YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss format.
-              Can also accept relative dates like 'today', 'yesterday', or 'last week'.
     """
     url = "https://api-open.data.gov.sg/v2/real-time/api/wind-speed"
     headers = {"User-Agent": USER_AGENT}
     params = {}
     if date:
-        api_date = date
-        if date.lower() == 'last week':
-            api_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-        elif date.lower() == 'yesterday':
-            api_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-        elif date.lower() == 'today':
-            api_date = datetime.now().strftime('%Y-%m-%d')
-        params["date"] = api_date
+        params["date"] = date
 
     async with httpx.AsyncClient() as client:
         try:
