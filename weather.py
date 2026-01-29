@@ -1,5 +1,6 @@
 from typing import Any
 from datetime import datetime, timedelta
+import os
 
 import httpx
 from mcp.server.fastmcp import FastMCP
@@ -564,9 +565,11 @@ async def get_singapore_4day_forecast(date: str | None = None) -> str:
 
 
 def main():
-    # Initialize and run the server
-    mcp.run(transport="stdio")
-
+    # Get the port from environment variable, default to 10000 for Render
+    port = int(os.getenv("PORT", 10000))
+    
+    # Initialize and run the server using SSE transport for web access
+    mcp.run(transport="sse", host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
     main()
