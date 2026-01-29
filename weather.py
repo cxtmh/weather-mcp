@@ -563,13 +563,20 @@ async def get_singapore_4day_forecast(date: str | None = None) -> str:
 
     return "\n".join(output_lines)
 
+# Expose the underlying ASGI app so we can run it with uvicorn
+# FastMCP stores the Starlette application in ._asgi_app
+app = mcp._asgi_app
 
 def main():
-    # Get the port from environment variable, default to 10000 for Render
+    import os
+    import uvicorn
+    
+    # Get the port from environment variable (Render sets this to 10000)
     port = int(os.getenv("PORT", 10000))
     
-    # Initialize and run the server using SSE transport for web access
-    mcp.run(transport="sse", host="0.0.0.0", port=port)
+    # Run uvicorn directly to ensure we can bind to 0.0.0.0
+    # This bypasses the limitations of mcp.run()
+    uvicorn.run(app, host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
     main()
