@@ -19,6 +19,10 @@
 		"render": {
 			"url": "https://mcp.render.com/mcp",
 			"type": "http"
+		},
+		"fast-mcp": {
+			"url": "https://gofastmcp.com/mcp",
+			"type": "http"
 		}
 	},
 	"inputs": []
