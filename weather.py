@@ -564,16 +564,7 @@ async def get_singapore_4day_forecast(date: str | None = None) -> str:
     return "\n".join(output_lines)
 
 def main():
-    import os
-    import uvicorn
-    
-    port = int(os.getenv("PORT", 10000))
-    
-    # Create the ASGI app explicitly
-    # This ensures all routes are registered before starting
-    app = mcp._create_asgi_app()
-    
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    mcp.run(transport="http", host="0.0.0.0", port=8000)
 
 if __name__ == "__main__":
     main()
