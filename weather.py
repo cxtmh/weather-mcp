@@ -564,7 +564,7 @@ async def get_singapore_4day_forecast(date: str | None = None) -> str:
     return "\n".join(output_lines)
 
 def main():
-    mcp.run(transport="http")
+    mcp.run(transport="sse")
 
 if __name__ == "__main__":
     main()
